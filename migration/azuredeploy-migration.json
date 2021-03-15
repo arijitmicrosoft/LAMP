@@ -38,12 +38,11 @@
         },
         "moodleVersion": {
             "allowedValues": [
-                "MOODLE_39_STABLE",
-                "MOODLE_38_STABLE"
+                "5.7"
             ],
-            "defaultValue": "MOODLE_38_STABLE",
+            "defaultValue": "5.7",
             "metadata": {
-                "description": "The Moodle version you want to install."
+                "description": "The Wordpress version you want to install."
             },
             "type": "string"
         },
@@ -93,7 +92,7 @@
         "dbServerType": {
             "defaultValue": "mysql",
             "allowedValues": [
-                "postgres",
+                "maria",
                 "mysql"
             ],
             "metadata": {
@@ -101,21 +100,21 @@
             },
             "type": "string"
         },
-        "moodleDbName": {
-            "defaultValue": "moodle",
+        "wordpressDbName": {
+            "defaultValue": "wordpress",
             "metadata": {
-                "description": "Moodle Database name"
+                "description": "Wordpress Database name"
             },
             "type": "string"
         },
-        "moodleDbUser": {
-            "defaultValue": "moodle",
+        "wordpressDbUser": {
+            "defaultValue": "wordpress",
             "metadata": {
-                "description": "Moodle Database username. This user is different from Database admin user."
+                "description": "Wordpress Database username. This user is different from Database admin user."
             },
             "type": "string"
         },
-        "mysqlPgresVcores": {
+        "mysqlMariaVcores": {
             "allowedValues": [
                 "1",
                 "2",
@@ -126,18 +125,18 @@
             ],
             "defaultValue": "2",
             "metadata": {
-                "description": "MySql/Postgresql vCores. For Basic tier, only 1 & 2 are allowed. For GeneralPurpose tier, 2, 4, 8, 16, 32 are allowed. For MemoryOptimized, 2, 4, 8, 16 are allowed."
+                "description": "MySql/Maria vCores. For Basic tier, only 1 & 2 are allowed. For GeneralPurpose tier, 2, 4, 8, 16, 32 are allowed. For MemoryOptimized, 2, 4, 8, 16 are allowed."
             },
             "type": "string"
         },
-        "mysqlPgresStgSizeGB": {
+        "mysqlMariaStgSizeGB": {
             "defaultValue": "125",
             "metadata": {
-                "description": "MySql/Postgresql storage size in GB. Minimum 5GB, increase by 1GB, up to 1TB (1024 GB)"
+                "description": "MySql/Maria storage size in GB. Minimum 5GB, increase by 1GB, up to 1TB (1024 GB)"
             },
             "type": "string"
         },
-        "mysqlPgresSkuTier": {
+        "mysqlMariaSkuTier": {
             "allowedValues": [
                 "Basic",
                 "GeneralPurpose",
@@ -145,27 +144,28 @@
             ],
             "defaultValue": "GeneralPurpose",
             "metadata": {
-                "description": "MySql/Postgresql sku tier"
+                "description": "MySql/Maria sku tier"
             },
             "type": "string"
         },
-        "mysqlPgresSkuHwFamily": {
+        "mysqlMariaSkuHwFamily": {
             "allowedValues": [
                 "Gen4",
                 "Gen5"
             ],
             "defaultValue": "Gen5",
             "metadata": {
-                "description": "MySql/Postgresql sku hardware family. Central US is Gen4 only, so make sure to change this parameter to Gen4 if your deployment is on Central US."
+                "description": "MySql/Maria sku hardware family. Central US is Gen4 only, so make sure to change this parameter to Gen4 if your deployment is on Central US."
             },
             "type": "string"
         },
         "mysqlVersion": {
             "allowedValues": [
+                "5.0",
                 "5.6",
                 "5.7"
             ],
-            "defaultValue": "5.7",
+            "defaultValue": "5.0",
             "metadata": {
                 "description": "Mysql version"
             },
@@ -181,7 +181,7 @@
         "vNetAddressSpace": {
             "defaultValue": "172.31.0.0",
             "metadata": {
-                "description": "Address range for the Moodle virtual network and various subnets - presumed /16 for a newly created vnet in case customVnetId is blank. Further subneting (a number of */24 subnets starting from the xxx.yyy.zzz.0/24 will be created on a newly created vnet or your BYO-vnet (specified in customVnetId parameter)."
+                "description": "Address range for the Wordpress virtual network and various subnets - presumed /16 for a newly created vnet in case customVnetId is blank. Further subneting (a number of */24 subnets starting from the xxx.yyy.zzz.0/24 will be created on a newly created vnet or your BYO-vnet (specified in customVnetId parameter)."
             },
             "type": "string"
         },
@@ -194,7 +194,7 @@
         }
     },
     "variables": {
-        "_artifactsLocation": "https://raw.githubusercontent.com/venu-sivanadham/Moodle/master/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/arijitmicrosoft/LAMP/master/",
         "_artifactsLocationSasToken": "",
         "documentationLine1": "'eastus2euap' is an Azure internal test region. It has limited support for many features such as: 'FileStorage' storageAccount kind etc.",
         "documentationLine2": "If resource group location is 'eastus2euap' then use a prod region for deployment.",
