@@ -5,7 +5,7 @@
         "redisDeploySwitch": {
             "defaultValue": "false",
             "metadata": {
-                "description": "Switch to deploy a redis cache or not. Note that certain versions of Moodle (e.g., 3.1) don't work well with Redis, so use this only for known well-working Moodle versions (e.g., 3.4)."
+                "description": "Switch to deploy a redis cache or not. Note that certain versions of Wordpress (e.g., 3.1) don't work well with Redis, so use this only for known well-working Wordpress versions (e.g., 3.4)."
             },
             "allowedValues": [ 
                 "true", 
@@ -21,7 +21,7 @@
             ],
             "defaultValue": "VMSS",
             "metadata": {
-                "description": "Indicates where https termination occurs. 'VMSS' is for https termination at the VMSS instance VMs (using nginx https proxy). 'AppGw' is for https termination with an Azure Application Gateway. When selecting this, you need to specify all appGw* parameters. 'None' is for testing only with no https. 'None' may not be used with a separately configured https termination layer. If you want to use the 'None' option with your separately configured https termination layer, you'll need to update your Moodle config.php manually for $cfg->wwwroot and $cfg->sslproxy."
+                "description": "Indicates where https termination occurs. 'VMSS' is for https termination at the VMSS instance VMs (using nginx https proxy). 'AppGw' is for https termination with an Azure Application Gateway. When selecting this, you need to specify all appGw* parameters. 'None' is for testing only with no https. 'None' may not be used with a separately configured https termination layer. If you want to use the 'None' option with your separately configured https termination layer, you'll need to update your Wordpress config.php manually for $cfg->wwwroot and $cfg->sslproxy."
             },
             "type": "string"
         },
@@ -36,7 +36,7 @@
             },
             "type": "string"
         },
-        "moodleVersion": {
+        "wordpressVersion": {
             "allowedValues": [
                 "5.7"
             ],
@@ -215,7 +215,7 @@
                     "httpsTermination":             { "value": "[parameters('httpsTermination')]"},
                     "loadBalancerSku":              { "value": "[parameters('loadBalancerSku')]"},
                     "siteURL":                      { "value": ""},
-                    "moodleVersion":                { "value": "[parameters('moodleVersion')]"},
+                    "wordpressVersion":             { "value": "[parameters('wordpressVersion')]"},
                     "sshPublicKey":                 { "value": "[parameters('sshPublicKey')]" },
                     "controllerVmSku":              { "value": "Standard_DS1_v2"},
                     "webServerType":                { "value": "[parameters('webServerType')]"},
@@ -224,19 +224,17 @@
                     "phpVersion":                   { "value": "[parameters('phpVersion')]" },
                     "dbServerType":                 { "value": "[parameters('dbServerType')]" },
                     "dbLogin":                      { "value": "dbadmin" },
-                    "moodleDbName":                 { "value": "[parameters('moodleDbName')]" },
-                    "moodleDbUser":                 { "value": "[parameters('moodleDbUser')]" },
-                    "mysqlPgresVcores":             { "value": "[int(parameters('mysqlPgresVcores'))]" },
-                    "mysqlPgresStgSizeGB":          { "value": "[int(parameters('mysqlPgresStgSizeGB'))]" },
-                    "mysqlPgresSkuTier":            { "value": "[parameters('mysqlPgresSkuTier')]" },
-                    "mysqlPgresSkuHwFamily":        { "value": "[parameters('mysqlPgresSkuHwFamily')]" },
+                    "wordpressDbName":              { "value": "[parameters('wordpressDbName')]" },
+                    "wordpressDbUser":              { "value": "[parameters('wordpressDbUser')]" },
+                    "mysqlMariaVcores":             { "value": "[int(parameters('mysqlMariaVcores'))]" },
+                    "mysqlMariaStgSizeGB":          { "value": "[int(parameters('mysqlMariaStgSizeGB'))]" },
+                    "mysqlMariaSkuTier":            { "value": "[parameters('mysqlMariaSkuTier')]" },
+                    "mysqlMariaSkuHwFamily":        { "value": "[parameters('mysqlMariaSkuHwFamily')]" },
                     "mysqlVersion":                 { "value": "[parameters('mysqlVersion')]" },
                     "postgresVersion":              { "value": "9.6" },
                     "fileServerType":               { "value": "azurefiles" },
                     "storageAccountType":           { "value": "Premium_LRS" },
                     "fileServerDiskSize":           { "value": "[int(parameters('fileServerDiskSize'))]" },
-                    "searchType":                   { "value": "none" },
-                    "azureSearchSku":               { "value": "basic" },
                     "vNetAddressSpace":             { "value": "[parameters('vNetAddressSpace')]"},
                     "ubuntuVersion":                { "value": "[parameters('ubuntuVersion')]"},
                     "location":                     { "value": "[variables('location')]" },

@@ -2,16 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "TypeOfTemplate":{
-            "defaultValue":"LAMP ARM TEMPLATE",
-            "type":"string"
-        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
             },
-            "defaultValue": "https://raw.githubusercontent.com/Azure/LAMP/master/"
+            "defaultValue": "https://raw.githubusercontent.com/arijitmicrosoft/LAMP/master/"
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
@@ -158,6 +154,17 @@
                 "description": "Select Ubuntu version. By default it will take 16.04-LTS"
             }
         },
+        "webServerType": {
+            "defaultValue": "nginx",
+            "allowedValues": [
+                "apache",
+                "nginx"
+            ],
+            "metadata": {
+                "description": "Web server type"
+            },
+            "type": "string"
+        },
         "phpVersion": {
             "allowedValues": [
                 "7.2",
@@ -173,7 +180,7 @@
         "dbServerType": {
             "defaultValue": "mysql",
             "allowedValues": [
-                "postgres",
+                "maria",
                 "mysql",
                 "mssql"
             ],
@@ -189,7 +196,21 @@
             },
             "type": "string"
         },
-        "mysqlPgresVcores": {
+        "wordpressDbName": {
+            "defaultValue": "wordpress",
+            "metadata": {
+                "description": "Wordpress Database name"
+            },
+            "type": "string"
+        },
+        "wordpressDbUser": {
+            "defaultValue": "wordpress",
+            "metadata": {
+                "description": "wordpress Database username. This user is different from Database admin user."
+            },
+            "type": "string"
+        },
+        "mysqlMariaVcores": {
             "allowedValues": [
                 1,
                 2,
@@ -200,20 +221,20 @@
             ],
             "defaultValue": 2,
             "metadata": {
-                "description": "MySql/Postgresql vCores. For Basic tier, only 1 & 2 are allowed. For GeneralPurpose tier, 2, 4, 8, 16, 32 are allowed. For MemoryOptimized, 2, 4, 8, 16 are allowed."
+                "description": "MySql/Maria DB vCores. For Basic tier, only 1 & 2 are allowed. For GeneralPurpose tier, 2, 4, 8, 16, 32 are allowed. For MemoryOptimized, 2, 4, 8, 16 are allowed."
             },
             "type": "int"
         },
-        "mysqlPgresStgSizeGB": {
+        "mysqlMariaStgSizeGB": {
             "defaultValue": 125,
             "minValue": 5,
             "maxValue": 1024,
             "metadata": {
-                "description": "MySql/Postgresql storage size in GB. Minimum 5GB, increase by 1GB, up to 1TB (1024 GB)"
+                "description": "MySql/Maria DB storage size in GB. Minimum 5GB, increase by 1GB, up to 1TB (1024 GB)"
             },
             "type": "int"
         },
-        "mysqlPgresSkuTier": {
+        "mysqlMariaSkuTier": {
             "allowedValues": [
                 "Basic",
                 "GeneralPurpose",
@@ -221,23 +242,24 @@
             ],
             "defaultValue": "GeneralPurpose",
             "metadata": {
-                "description": "MySql/Postgresql sku tier"
+                "description": "MySql/Maria DB sku tier"
             },
             "type": "string"
         },
-        "mysqlPgresSkuHwFamily": {
+        "mysqlMariaSkuHwFamily": {
             "allowedValues": [
                 "Gen4",
                 "Gen5"
             ],
             "defaultValue": "Gen5",
             "metadata": {
-                "description": "MySql/Postgresql sku hardware family. Central US is Gen4 only, so make sure to change this parameter to Gen4 if your deployment is on Central US."
+                "description": "MySql/Maria DB sku hardware family. Central US is Gen4 only, so make sure to change this parameter to Gen4 if your deployment is on Central US."
             },
             "type": "string"
         },
         "mysqlVersion": {
             "allowedValues": [
+                "5.0",
                 "5.6",
                 "5.7",
                 "8.0"
@@ -257,7 +279,7 @@
             ],
             "defaultValue": "9.6",
             "metadata": {
-                "description": "Postgresql version"
+                "description": "Maria DB version"
             },
             "type": "string"
         },
@@ -268,7 +290,7 @@
             ],
             "defaultValue": "Disabled",
             "metadata": {
-                "description": "MySql/Postgresql SSL connection"
+                "description": "MySql/Maria DB SSL connection"
             },
             "type": "string"
         },
@@ -341,6 +363,7 @@
         "fileServerType": {
             "defaultValue": "nfs",
             "allowedValues": [
+                "azurefiles",
                 "gluster",
                 "nfs",
                 "nfs-ha",
@@ -480,6 +503,14 @@
             },
             "type": "string"
         },
+        "storageAccountNamePrefix": {
+            "defaultValue":"",
+            "maxLength": 15,
+            "metadata": {
+                "description": "Storage account name prefix. Instread of unsing random prefix, this value will be used to construct storage account name"
+            },
+            "type": "string"
+        },
         "customVnetId": {
             "defaultValue": "",
             "metadata": {
@@ -542,7 +573,8 @@
             "allowedValues": [
                 "5.4.1",
                 "5.4.2",
-                "5.4"
+                "5.4",
+                "5.7"
             ],
             "defaultValue": "5.4.2",
             "metadata": {
@@ -555,6 +587,13 @@
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "Azure Location for all resources."
+            }
+        },
+        "isMigration": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Indicates whether the this template is using for migration scenario."
             }
         }
     },
@@ -897,7 +936,7 @@
         "documentation02": "    recoveryservices0   - dummy template (see next statement)",
         "documentation03": "    recoveryservices1   - creates a recovery vault that will be subsequently used by the VM Backup - a paramter swtich controls whethe is is called or bypassed",
         "documentation04": "    redis               - creates a redis cache",
-        "documentation05": "    postgres / mysql  - creates a postgresql / mysql server",
+        "documentation05": "    postgres / mysql  - creates a Maria DB / mysql server",
         "documentation06": "    vnet                - creates a virtual network with three subnets",
         "documentation07": "    gluster             - creates a gluster file system on a vm farm",
         "documentation08": "    webvmss             - creates a vm scale set",
@@ -967,11 +1006,11 @@
             "mssqlDbSize": "[parameters('mssqlDbSize')]",
             "mssqlDbEdition": "[parameters('mssqlDbEdition')]",
             "mssqlVersion": "[parameters('mssqlVersion')]",
-            "mysqlPgresSkuHwFamily": "[parameters('mysqlPgresSkuHwFamily')]",
-            "mysqlPgresSkuName": "[concat(if(equals(parameters('mysqlPgresSkuTier'),'Basic'),'B', if(equals(parameters('mysqlPgresSkuTier'),'GeneralPurpose'),'GP', 'MO')), '_', parameters('mysqlPgresSkuHwFamily'), '_', string(parameters('mysqlPgresVcores')))]",
-            "mysqlPgresSkuTier": "[parameters('mysqlPgresSkuTier')]",
-            "mysqlPgresStgSizeGB": "[parameters('mysqlPgresStgSizeGB')]",
-            "mysqlPgresVcores": "[parameters('mysqlPgresVcores')]",
+            "mysqlMariaSkuHwFamily": "[parameters('mysqlMariaSkuHwFamily')]",
+            "mysqlMariaSkuName": "[concat(if(equals(parameters('mysqlMariaSkuTier'),'Basic'),'B', if(equals(parameters('mysqlMariaSkuTier'),'GeneralPurpose'),'GP', 'MO')), '_', parameters('mysqlMariaSkuHwFamily'), '_', string(parameters('mysqlMariaVcores')))]",
+            "mysqlMariaSkuTier": "[parameters('mysqlMariaSkuTier')]",
+            "mysqlMariaStgSizeGB": "[parameters('mysqlMariaStgSizeGB')]",
+            "mysqlMariaVcores": "[parameters('mysqlMariaVcores')]",
             "mysqlVersion": "[parameters('mysqlVersion')]",
             "nfsByoIpExportPath": "[parameters('nfsByoIpExportPath')]",
             "nfsHaClientsIPRange": "[variables('subnetWebRange')]",
@@ -998,7 +1037,7 @@
             "sshPublicKey": "[parameters('sshPublicKey')]",
             "sshUsername": "[parameters('sshUsername')]",
             "sslEnforcement": "[parameters('sslEnforcement')]",
-            "storageAccountName": "[tolower(concat('abs',variables('resourceprefix')))]",
+            "storageAccountName": "[if(empty(parameters('storageAccountNamePrefix')), concat('abs', variables('resourceprefix')), parameters('storageAccountNamePrefix'))]",
             "storageAccountType": "[parameters('storageAccountType')]",
             "subnetAppGw": "[concat('appgw-subnet-',variables('resourceprefix'))]",
             "subnetAppGwPrefix": "[concat(variables('octets')[0], '.', variables('octets')[1], '.', string(add(int(variables('octets')[2]),6)))]",
